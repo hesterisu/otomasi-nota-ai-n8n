@@ -1,0 +1,231 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Upload Nota",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "file_nota",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e77954a1-fc2d-482e-8ab9-8cd7ee74e7fd",
+      "name": "On form submission",
+      "webhookId": "101137f7-511f-4346-8b09-ec2d66722d59"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "file_nota",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "67d32ab8-c2d4-4036-b8a0-587cb73bc36b",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "nama_toko",
+              "description": "Nama toko atau penjual"
+            },
+            {
+              "name": "tanggal",
+              "description": "Tanggal transaksi"
+            },
+            {
+              "name": "total_bayar",
+              "description": "Angka total pembayaran"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "fbdad29f-a248-4c09-afea-89d862965fcb",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        208
+      ],
+      "id": "cb1d9c69-5bf5-4399-bb53-46c02bb38db2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "fYzoNzcaSD190lGd",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1iqDv3d5kXx931Cy2eFSQTZtxfxCnFRMaCJbhOEz3Jww",
+          "mode": "list",
+          "cachedResultName": "Latihan Otomasi Nota",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iqDv3d5kXx931Cy2eFSQTZtxfxCnFRMaCJbhOEz3Jww/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iqDv3d5kXx931Cy2eFSQTZtxfxCnFRMaCJbhOEz3Jww/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nama Toko": "={{ $json.output.nama_toko }}",
+            "Tanggal": "={{ $json.output.tanggal }}",
+            "Total Bayar": "={{ $json.output.total_bayar }}"
+          },
+          "matchingColumns": [
+            "Nama Toko"
+          ],
+          "schema": [
+            {
+              "id": "Nama Toko",
+              "displayName": "Nama Toko",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tanggal",
+              "displayName": "Tanggal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total Bayar",
+              "displayName": "Total Bayar",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        816,
+        0
+      ],
+      "id": "a081bdea-b6c6-440c-8cf9-a657cc9d4ba0",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "F8ltKvbDXndMuvX2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "af1cb6f5-411f-4a4a-a1bc-357191edb143",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5cc943d4ae6916ea9778c0f172fae91b3eca2808cc21151f2bab4c4481700f83"
+  },
+  "nodeGroups": [],
+  "id": "SiqBRJSotBThdw7F",
+  "tags": []
+}
